@@ -36,47 +36,38 @@ public class Welt {
 
     }
     
-    public func get_breaking_news() async throws -> Any {
-        guard let url = URL(string: "\(api)/news-banner/breaking-news") else {
+    private func fetchJSON(from urlString: String,method: HTTPMethod = .get,body: Data? = nil,queryParameters: [String: String]? = nil) async throws -> Any {
+        var urlComponents = URLComponents(string: urlString)
+        if let queryParameters = queryParameters {
+            urlComponents?.queryItems = queryParameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        guard let url = urlComponents?.url else {
             throw NSError(domain: "Invalid URL", code: -1)
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
+        if let body = body {
+            request.httpBody = body
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         let (data, _) = try await URLSession.shared.data(for: request)
         return try JSONSerialization.jsonObject(with: data)
     }
     
-    public func get_animated_banner() async throws -> Any {
-        guard let url = URL(string: "\(api)/animated-banner") else {
-            throw NSError(domain: "Invalid URL", code: -1)
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        let (data, _) = try await URLSession.shared.data(for: request)
-        return try JSONSerialization.jsonObject(with: data)
+    public func getBreakingNews() async throws -> Any {
+        return try await fetchJSON(from: "\(api)/news-banner/breaking-news")
     }
     
-    public func get_home_articles() async throws -> Any {
-        guard let url = URL(string: "\(api)/articles/home") else {
-            throw NSError(domain: "Invalid URL", code: -1)
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        let (data, _) = try await URLSession.shared.data(for: request)
-        return try JSONSerialization.jsonObject(with: data)
+    public func getAnimatedBanner() async throws -> Any {
+        return try await fetchJSON(from: "\(api)/animated-banner")
+    }
+    
+    public func getHomeArticles() async throws -> Any {
+        return try await fetchJSON(from: "\(api)/articles/home")
     }
 
-    public func get_livestream() async throws -> Any {
-        guard let url = URL(string: "\(api)/news-banner/livestream") else {
-            throw NSError(domain: "Invalid URL", code: -1)
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        let (data, _) = try await URLSession.shared.data(for: request)
-        return try JSONSerialization.jsonObject(with: data)
+    public func getLivestream() async throws -> Any {
+        return try await fetchJSON(from: "\(api)/news-banner/livestream"
     }
 }
