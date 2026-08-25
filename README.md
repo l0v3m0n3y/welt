@@ -7,7 +7,7 @@ import welt
 let client = Welt()
 
 do {
-    let news = try await client.get_breaking_news()
+    let news = try await client.getBreakingNews()
     print(news)
 } catch {
     print("Error: \(error)")
